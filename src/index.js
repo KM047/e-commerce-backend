@@ -13,6 +13,7 @@ connectDB()
         });
 
         app.listen(process.env.PORT || 8001, () => {
+            console.log(`Url -> http://localhost:${process.env.PORT}`);
             console.log(`⚙️  Server listening`);
         });
     })

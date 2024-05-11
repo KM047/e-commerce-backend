@@ -1,14 +1,15 @@
 import mongoose, { Schema, model } from "mongoose";
-import { AvailableUserRolesEnum, UserRolesEnum } from "../../constants";
+import { AvailableUserRolesEnum, UserRolesEnum } from "../../constants.js";
 import bcrypt from "bcrypt";
-import { UserProfile } from "./../profile.models";
-import { Cart } from "./../cart.models";
+import { UserProfile } from "./../profile.models.js";
+import { Cart } from "./../cart.models.js";
 import jwt from "jsonwebtoken";
 
 const userSchema = new Schema(
     {
         avatar: {
             type: "string",
+            default: "https://placehold.co/200x200",
         },
         username: {
             type: String,
@@ -55,25 +56,24 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-userSchema.post(
-    ("save",
-    async function (user, next) {
-        const userProfile = await UserProfile.findOne(user._id);
-        const userCart = await Cart.findOne(user._id);
+userSchema.post("save", async function (user, next) {
+    const userProfile = await UserProfile.findOne(user._id);
+    const userCart = await Cart.findOne(user._id);
 
-        if (!userProfile) {
-            await UserProfile.create({
-                owner: user._id,
-            });
-        }
+    if (!userProfile) {
+        await UserProfile.create({
+            owner: user._id,
+        });
+    }
 
-        if (!userCart) {
-            await Cart.create({
-                owner: user._id,
-            });
-        }
-    })
-);
+    if (!userCart) {
+        await Cart.create({
+            owner: user._id,
+        });
+    }
+
+    next();
+});
 
 // methods for the password checking
 
@@ -106,4 +106,4 @@ userSchema.methods.getUserRefreshToken = async function () {
     );
 };
 
-export const User = model("User", userSchema);
+export const User = mongoose.model("User", userSchema);
