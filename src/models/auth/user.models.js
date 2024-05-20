@@ -1,9 +1,14 @@
 import mongoose, { Schema, model } from "mongoose";
-import { AvailableUserRolesEnum, UserRolesEnum } from "../../constants.js";
+import {
+    AvailableUserRolesEnum,
+    USER_VERIFICATION_TOKEN_EXPIRY,
+    UserRolesEnum,
+} from "../../constants.js";
 import bcrypt from "bcrypt";
 import { UserProfile } from "./../profile.models.js";
 import { Cart } from "./../cart.models.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new Schema(
     {
@@ -96,7 +101,7 @@ userSchema.methods.getUserAccessToken = function () {
     );
 };
 
-userSchema.methods.getUserRefreshToken = async function () {
+userSchema.methods.getUserRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -104,6 +109,19 @@ userSchema.methods.getUserRefreshToken = async function () {
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
     );
+};
+
+userSchema.methods.getVerificationToken = function () {
+    const unHashedToken = crypto.randomBytes(20).toString("hex");
+
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(unHashedToken)
+        .digest("hex");
+
+    const tokenExpiry = Date.now() + USER_VERIFICATION_TOKEN_EXPIRY;
+
+    return { unHashedToken, hashedToken, tokenExpiry };
 };
 
 export const User = mongoose.model("User", userSchema);
