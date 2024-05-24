@@ -4,6 +4,11 @@ import { ApiError } from "../../utils/ApiError.utils.js";
 import { User } from "./../../models/auth/user.models.js";
 import { UserRolesEnum } from "../../constants.js";
 import crypto from "crypto";
+import { sendAccountVerificationEmail } from "../../utils/sendMail.js";
+import {
+    emailVerificationMailgenContent,
+    sendEmail,
+} from "../../utils/mails.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -46,15 +51,83 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error while creating user");
     }
 
-    //TODO: send email to the user for verification of email address
+    //DONE: send email to the user for verification of email address
+
+    // const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const { unHashedToken, hashedToken, tokenExpiry } =
+        user.getVerificationToken();
+
+    user.emailVerificationToken = hashedToken;
+    user.emailVerificationExpiry = tokenExpiry;
+    await user.save({ validateBeforeSave: true });
 
     const createdUser = await User.findOne(user._id).select(
         "-password -refreshToken"
     );
 
+    //! sending mail using nodemailer, mailgen, mailtrap
+
+    await sendEmail({
+        email: user?.email,
+        subject: "Please verify your email",
+        mailgenContent: emailVerificationMailgenContent(
+            user.username,
+            `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
+        ),
+    });
+
     return res
         .status(200)
-        .json(new ApiResponse(201, createdUser, "User created successfully"));
+        .json(
+            new ApiResponse(
+                201,
+                createdUser,
+                "User registered successfully. Please verify your email"
+            )
+        );
+});
+
+const verifyEmail = asyncHandler(async (req, res) => {
+    try {
+        const { verificationToken } = req.params;
+
+        if (!verificationToken) {
+            throw new ApiError(400, "Email verification token is missing");
+        }
+
+        let hashedToken = crypto
+            .createHash("sha256")
+            .update(verificationToken)
+            .digest("hex");
+
+        const user = await User.findOne({
+            emailVerificationToken: hashedToken,
+            emailVerificationExpiry: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            throw new ApiError(489, "Token is invalid or expired");
+        }
+
+        (user.emailVerificationToken = undefined),
+            (user.emailVerificationExpiry = undefined),
+            (user.isEmailVerified = true);
+
+        await user.save({ validateBeforeSave: false });
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    { isEmailVerified: true },
+                    "Email is verified successfully"
+                )
+            );
+    } catch (error) {
+        throw new ApiError(500, "Error while verifying email", error.message);
+    }
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -163,6 +236,9 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
     try {
+        return res
+            .status(200)
+            .json(new ApiResponse(200, req.user, "Current logged in user"));
     } catch (error) {
         throw new ApiError(500, "Error while getting current user");
     }
@@ -177,6 +253,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
 export {
     registerUser,
+    verifyEmail,
     loginUser,
     logoutUser,
     updateUserAvatar,
