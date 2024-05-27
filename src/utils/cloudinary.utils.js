@@ -41,7 +41,6 @@ const deleteFileInCloudinary = async (imageURL) => {
         {
             resource_type: "image",
         },
-        {}
     );
 
     return response;

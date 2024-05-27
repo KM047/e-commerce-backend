@@ -9,6 +9,11 @@ import {
     forgotPasswordMailgenContent,
     sendEmail,
 } from "../../utils/mails.js";
+import {
+    deleteFileInCloudinary,
+    uploadOnCloudinary,
+} from "../../utils/cloudinary.utils.js";
+import { log } from "console";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -214,7 +219,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
     try {
-        console.log(req.user);
+        // console.log(req.user);
         await User.findByIdAndUpdate(
             req.user._id,
             {
@@ -369,8 +374,65 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
     try {
+        if (!req.file?.path) {
+            throw new ApiError(401, "File does not exist ooo");
+        }
+
+        console.log(req.file.path);
+
+        const avatarLocalPath  = req.file?.path;
+
+        // using cloudinary for uploading files
+        const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+        if (!avatar) {
+            throw new ApiError(
+                500,
+                "Error while uploading avatar to cloudinary"
+            );
+        }
+
+        const user = await User.findById(req.user._id);
+
+        const updatedUser = await User.findOneAndUpdate(
+            req.user?._id,
+            {
+                $set: {
+                    avatar: avatar.url,
+                },
+            },
+            {
+                new: true,
+            }
+        ).select(
+            "-password -refreshToken -emailVerificationToken -emailVerificationExpiry "
+        );
+
+        if (!updatedUser) {
+            throw new ApiError(
+                500,
+                "User not found or error while updating the user avatar"
+            );
+        }
+
+        if (user.avatar != "https://placehold.co/200x200") {
+            await deleteFileInCloudinary(user.avatar);
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    updatedUser,
+                    "User avatar updated successfully"
+                )
+            );
     } catch (error) {
-        throw new ApiError(500, "Error while updating user avatar image");
+        throw new ApiError(
+            500,
+            error.message || "Error while updating user avatar image"
+        );
     }
 });
 
