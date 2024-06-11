@@ -18,7 +18,7 @@ import {
     userLoginValidator,
     userRegistrationValidator,
     userResetForgottenPasswordValidator,
-} from "../../validators/auth/user.validator.js";
+} from "../../validators/auth/user.validators.js";
 import { validate } from "../../validators/validate.js";
 import { upload } from "./../../middlewares/multer.middleware.js";
 

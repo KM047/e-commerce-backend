@@ -378,7 +378,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
             throw new ApiError(401, "File does not exist ooo");
         }
 
-        console.log(req.file.path);
+        // console.log(req.file.path);
 
         const avatarLocalPath  = req.file?.path;
 

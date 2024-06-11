@@ -20,6 +20,8 @@ const productSchema = new Schema(
         name: {
             required: true,
             type: String,
+            unique: true,
+            lowercase: true,
         },
         owner: {
             type: Schema.Types.ObjectId,

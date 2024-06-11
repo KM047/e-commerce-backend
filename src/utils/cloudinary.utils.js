@@ -14,6 +14,8 @@ const uploadOnCloudinary = async (fileLocalPath) => {
             return null;
         }
 
+        // console.log("fileLocalPath ->", fileLocalPath);
+
         const response = await cloudinary.uploader.upload(fileLocalPath, {
             resource_type: "auto",
         });
@@ -36,12 +38,9 @@ const uploadOnCloudinary = async (fileLocalPath) => {
 const deleteFileInCloudinary = async (imageURL) => {
     const oldImagePublicId = imageURL.split("/").pop().split(".")[0];
 
-    const response = await cloudinary.uploader.destroy(
-        oldImagePublicId,
-        {
-            resource_type: "image",
-        },
-    );
+    const response = await cloudinary.uploader.destroy(oldImagePublicId, {
+        resource_type: "image",
+    });
 
     return response;
 };

@@ -1,10 +1,9 @@
 import { validationResult } from "express-validator";
 import { ApiError } from "../utils/ApiError.utils.js";
-import { asyncHandler } from "../utils/asyncHandler.utils.js";
-import { errorHandler } from "../middlewares/error.middleware.js";
-
 export const validate = (req, res, next) => {
     const errors = validationResult(req);
+
+    console.log(errors);
 
     if (errors.isEmpty()) {
         return next();

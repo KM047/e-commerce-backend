@@ -29,4 +29,6 @@ export const CouponTypeEnum = {
 
 export const AvailableCouponTypes = Object.values(CouponTypeEnum);
 
-export const USER_VERIFICATION_TOKEN_EXPIRY = 20 * 60 * 1000 
+export const USER_VERIFICATION_TOKEN_EXPIRY = 20 * 60 * 1000;
+
+export const MAX_SUB_IMAGE_COUNT = 4;
