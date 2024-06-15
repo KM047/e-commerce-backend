@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import { User } from "../auth/user.models.js";
 import { AvailableCouponTypes, CouponTypeEnum } from "./../constants.js";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
@@ -39,7 +38,7 @@ const couponSchema = new Schema(
         },
         expiryDate: {
             type: Date,
-            default: null,
+            default: Date.now() + 30 * 24 * 60 * 60 * 1000, // it defaults to 30 days
         },
         owner: {
             type: Schema.Types.ObjectId,

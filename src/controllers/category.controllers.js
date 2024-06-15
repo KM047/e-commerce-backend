@@ -24,7 +24,7 @@ const createCategory = asyncHandler(async (req, res) => {
 const getAllCategories = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
 
-    const categoryAggregate = await Category.aggregate([{ $match: {} }]);
+    const categoryAggregate = Category.aggregate([{ $match: {} }]);
 
     const categories = await Category.aggregatePaginate(
         categoryAggregate,

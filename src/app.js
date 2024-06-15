@@ -35,10 +35,10 @@ import categoryRouter from "./routes/category.routes.js";
 // import userOrders from "./routes/order.routes.js";
 
 // * Coupon route
-// import couponRouter from "./routes/coupon.routes.js";
+import couponRouter from "./routes/coupon.routes.js";
 
 // * Cart route
-// import userCartRouter from "./routes/cart.routes.js";
+import userCartRouter from "./routes/cart.routes.js";
 
 // * address route
 // import userAddressRouter from "./routes/address.routes.js";
@@ -62,10 +62,10 @@ app.use("/api/v1/categories", categoryRouter);
 // app.use("/api/v1/orders", userOrders);
 
 // * Coupon api
-// app.use("/api/v1/coupons", couponRouter);
+app.use("/api/v1/coupons", couponRouter);
 
 // * Cart api
-// app.use("/api/v1/cart", userCartRouter);
+app.use("/api/v1/cart", userCartRouter);
 
 // * address api
 // app.use("/api/v1/addresses", userAddressRouter);
