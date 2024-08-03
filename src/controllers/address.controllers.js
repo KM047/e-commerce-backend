@@ -43,7 +43,7 @@ const createAddress = asyncHandler(async (req, res) => {
 const getAllAddresses = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
 
-    const allAddress = await UserAddress.aggregate([
+    const allAddress = UserAddress.aggregate([
         {
             $match: {
                 owner: new mongoose.Types.ObjectId(req.user._id),
@@ -58,7 +58,7 @@ const getAllAddresses = asyncHandler(async (req, res) => {
             limit,
             customLabels: {
                 totalDocs: "totalAddresses",
-                docs: "useraddresses",
+                docs: "userAddresses",
             },
         })
     );

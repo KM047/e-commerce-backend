@@ -32,7 +32,7 @@ import productRouter from "./routes/product.routes.js";
 import categoryRouter from "./routes/category.routes.js";
 
 // * Orders route
-// import userOrders from "./routes/order.routes.js";
+import userOrders from "./routes/order.routes.js";
 
 // * Coupon route
 import couponRouter from "./routes/coupon.routes.js";
@@ -58,8 +58,8 @@ app.use("/api/v1/products", productRouter);
 // * Category api
 app.use("/api/v1/categories", categoryRouter);
 
-// ! Orders api
-// app.use("/api/v1/orders", userOrders);
+// * Orders api
+app.use("/api/v1/orders", userOrders);
 
 // * Coupon api
 app.use("/api/v1/coupons", couponRouter);
